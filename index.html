@@ -21,7 +21,7 @@ input:focus,select:focus{outline:2px solid #9bc9ee;border-color:var(--blue)}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .card{background:white;border:1px solid var(--line);border-radius:14px;padding:17px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .cardhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.card h3{font-size:17px;margin:0;line-height:1.3}.area{font-size:12px;color:var(--blue);font-weight:700;margin-top:5px}
-.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;background:var(--pale);color:#285477;padding:5px 8px;border-radius:20px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;background:var(--pale);color:#285477;padding:5px 8px;border-radius:20px}.tag.paid{background:#fff0e8;color:#a34718}.tag.free{background:#eaf5ef;color:#16794b}.tag.check{background:#f0effb;color:#554c9b}
 .address{font-size:13px;color:#566579;line-height:1.5;margin:0}.note{font-size:12px;color:#85631c;background:#fff8e8;padding:9px 10px;border-radius:8px;line-height:1.45;margin:0}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:3px}.btn{display:inline-flex;justify-content:center;align-items:center;text-decoration:none;border-radius:8px;padding:10px 13px;font-size:13px;font-weight:700}.mapbtn{background:var(--blue);color:white}.phonebtn{background:#eaf5ef;color:var(--green)}
 .empty{background:white;border:1px dashed #b9c9d7;border-radius:12px;padding:30px;text-align:center;color:var(--muted);grid-column:1/-1}
@@ -43,6 +43,7 @@ footer{text-align:center;padding:20px;color:#728094;font-size:12px;border-top:1p
    <div><label for="search">Search parking name or area</label><input id="search" type="search" placeholder="Try HSR Layout, Majestic, KR Market..."></div>
    <div><label for="area">Bengaluru area</label><select id="area"><option value="">All areas</option></select></div>
    <div><label for="vehicle">Vehicle type</label><select id="vehicle"><option value="">All vehicles</option><option value="Car">Car</option><option value="Bike">Bike / Two-wheeler</option></select></div>
+   <div><label for="cost">Parking fee</label><select id="cost"><option value="">Paid and free</option><option value="Paid">Paid parking</option><option value="Free">Potential free parking</option><option value="Check">Fee to be confirmed</option></select></div>
   </div>
  </section>
  <div class="summary"><h2>Parking locations</h2><span class="count" id="count" aria-live="polite"></span></div>
@@ -53,18 +54,23 @@ footer{text-align:center;padding:20px;color:#728094;font-size:12px;border-top:1p
 <footer>© <span id="year"></span> Bengaluru Parking Finder · Page Owner: Ainn</footer>
 <script>
 const places = [
- {name:"Freedom Park Multi-Level Car Parking",area:"Gandhi Nagar / Majestic",address:"Sheshadri Road, Gandhi Nagar, Bengaluru, Karnataka 560009",vehicles:["Car","Bike"],note:"Public multi-level parking near Freedom Park. Check event-day crowding."},
- {name:"Kempe Gowda Maharaja Parking Complex",area:"Chickpet / KG Road",address:"143, Kempegowda Road, Anchepet, Chickpet, Bengaluru, Karnataka 560009",vehicles:["Car","Bike"],note:"Multi-level paid parking serving Chickpet, Avenue Road and nearby markets."},
- {name:"Right Parking – KR Market",area:"KR Market / City Market",address:"NR Road, City Market, KR Market, Dodpete, Chickpet, Bengaluru, Karnataka 560002",vehicles:["Car","Bike"],note:"Pay-and-park listing near the City Market area."},
- {name:"Cubbon Park Parking",area:"Cubbon Road / Central Bengaluru",address:"Cubbon Road, Nunegundlapalli, Ambedkar Veedhi, Bengaluru, Karnataka 560001",vehicles:["Car","Bike"],note:"Parking listing for visitors to Cubbon Park; check current access and rules."},
- {name:"Sivaji Nagar Parking",area:"Shivaji Nagar / Commercial Street",address:"Commercial Street, Tasker Town, Shivaji Nagar, Bengaluru, Karnataka 560051",vehicles:["Car","Bike"],note:"Parking listing serving Commercial Street and Shivaji Nagar."},
- {name:"Unity Building Parking Lot",area:"Sampangi Rama Nagar / Mission Road",address:"Sampangi Rama Nagar, Bengaluru, Karnataka 560027",vehicles:["Car","Bike"],note:"Parking option around the SP Road and central shopping district."},
- {name:"Rajajinagar Metro Parking Area",area:"Rajajinagar",address:"1st Block, 2nd Stage, Rajajinagar, Bengaluru, Karnataka 560010",vehicles:["Bike"],note:"Metro park-and-ride listing. Confirm vehicle category and current terms."},
- {name:"Mysuru Road Metro Station Parking",area:"Mysuru Road / Deepanjali Nagar",address:"321/A, Mysore Road, Deepanjali Nagar, Bengaluru, Karnataka 560026",vehicles:["Car","Bike"],note:"Metro commuter parking listing near Mysuru Road station."},
- {name:"Hopefarm Channasandra Metro 2-Wheeler Parking",area:"Hopefarm / Kadugodi / Whitefield",address:"Whitefield–Hoskote Road, Kadugodi, Bengaluru, Karnataka 560066",vehicles:["Bike"],note:"Two-wheeler parking listing near Hopefarm Channasandra Metro."},
- {name:"KSR Bengaluru Back Gate Two-Wheeler Parking",area:"Majestic / KSR Railway Station",address:"M G Railway Colony, Sevashrama, Bengaluru, Karnataka 560023",vehicles:["Bike"],note:"Two-wheeler parking listing near the railway station back gate."},
- {name:"Car Parking – Ramamurthy Nagar",area:"Ramamurthy Nagar",address:"24, Hanuma Reddy Road, Ramaiah Reddy Layout, Ramamurthy Nagar, Bengaluru, Karnataka 560016",vehicles:["Car"],phone:"09972373126",note:"Local car-parking listing. Call to confirm access, rates and availability."},
- {name:"New BEL Road Parking",area:"New BEL Road",address:"36, 5th Main, near Trance Retail Shop, New BEL Road, Bengaluru, Karnataka 560094",vehicles:["Car","Bike"],phone:"07975492926",note:"Local parking listing on New BEL Road; confirm available vehicle slots."}
+ {name:"Freedom Park Multi-Level Car Parking",area:"Gandhi Nagar / Majestic",address:"Sheshadri Road, Gandhi Nagar, Bengaluru, Karnataka 560009",vehicles:["Car","Bike"],fee:"Paid",note:"Public multi-level parking. Parking charges apply; confirm current rates and event-day access."},
+ {name:"Kempe Gowda Maharaja Parking Complex",area:"Chickpet / KG Road",address:"143, Kempegowda Road, Anchepet, Chickpet, Bengaluru, Karnataka 560009",vehicles:["Car","Bike"],fee:"Paid",note:"Multi-level paid parking serving Chickpet, Avenue Road and nearby markets. Confirm current rates."},
+ {name:"Right Parking – KR Market",area:"KR Market / City Market",address:"NR Road, City Market, KR Market, Dodpete, Chickpet, Bengaluru, Karnataka 560002",vehicles:["Car","Bike"],fee:"Paid",note:"Pay-and-park listing near the City Market area. Confirm current rates."},
+ {name:"Cubbon Park Parking",area:"Cubbon Road / Central Bengaluru",address:"Cubbon Road, Nunegundlapalli, Ambedkar Veedhi, Bengaluru, Karnataka 560001",vehicles:["Car","Bike"],fee:"Check",note:"Parking option around Cubbon Park. Fee and current access rules must be confirmed on arrival."},
+ {name:"Sivaji Nagar Parking",area:"Shivaji Nagar / Commercial Street",address:"Commercial Street, Tasker Town, Shivaji Nagar, Bengaluru, Karnataka 560051",vehicles:["Car","Bike"],fee:"Check",note:"Parking listing serving Commercial Street and Shivaji Nagar. Confirm whether the specific lot is paid and check its rates."},
+ {name:"Unity Building Parking Lot",area:"Sampangi Rama Nagar / Mission Road",address:"Sampangi Rama Nagar, Bengaluru, Karnataka 560027",vehicles:["Car","Bike"],fee:"Check",note:"Parking option around the SP Road and central shopping district. Confirm fee and access at the entrance."},
+ {name:"Rajajinagar Metro Parking Area",area:"Rajajinagar",address:"1st Block, 2nd Stage, Rajajinagar, Bengaluru, Karnataka 560010",vehicles:["Bike"],fee:"Paid",note:"Metro park-and-ride parking. Charges and vehicle category rules may apply; confirm current terms."},
+ {name:"Mysuru Road Metro Station Parking",area:"Mysuru Road / Deepanjali Nagar",address:"321/A, Mysore Road, Deepanjali Nagar, Bengaluru, Karnataka 560026",vehicles:["Car","Bike"],fee:"Paid",note:"Metro commuter parking listing. Confirm current vehicle-wise rates and availability."},
+ {name:"Hopefarm Channasandra Metro 2-Wheeler Parking",area:"Hopefarm / Kadugodi / Whitefield",address:"Whitefield–Hoskote Road, Kadugodi, Bengaluru, Karnataka 560066",vehicles:["Bike"],fee:"Paid",note:"Two-wheeler metro parking listing. Confirm current charges and availability."},
+ {name:"KSR Bengaluru Back Gate Two-Wheeler Parking",area:"Majestic / KSR Railway Station",address:"M G Railway Colony, Sevashrama, Bengaluru, Karnataka 560023",vehicles:["Bike"],fee:"Check",note:"Two-wheeler parking option near the railway station. Confirm whether it is an authorised paid lot and check rates."},
+ {name:"Car Parking – Ramamurthy Nagar",area:"Ramamurthy Nagar",address:"24, Hanuma Reddy Road, Ramaiah Reddy Layout, Ramamurthy Nagar, Bengaluru, Karnataka 560016",vehicles:["Car"],phone:"09972373126",fee:"Check",note:"Local car-parking listing. Call to confirm whether parking is paid or free, rates and availability."},
+ {name:"New BEL Road Parking",area:"New BEL Road",address:"36, 5th Main, near Trance Retail Shop, New BEL Road, Bengaluru, Karnataka 560094",vehicles:["Car","Bike"],phone:"07975492926",fee:"Check",note:"Local parking listing on New BEL Road; call to confirm fee type, rates and available vehicle slots."},
+ {name:"Permitted roadside spaces – HSR Layout",area:"HSR Layout",address:"HSR Layout, Bengaluru, Karnataka",vehicles:["Car","Bike"],fee:"Free",note:"Potential no-charge roadside parking only where a sign or marking explicitly permits parking. Many roads have restrictions; never block footpaths, gates or bus stops."},
+ {name:"Permitted roadside spaces – Jayanagar",area:"Jayanagar",address:"Jayanagar, Bengaluru, Karnataka",vehicles:["Car","Bike"],fee:"Free",note:"Potential no-charge roadside spaces on eligible streets only where local signs/markings allow parking. Check restrictions before leaving the vehicle."},
+ {name:"Permitted roadside spaces – JP Nagar",area:"JP Nagar",address:"JP Nagar, Bengaluru, Karnataka",vehicles:["Car","Bike"],fee:"Free",note:"Potential no-charge roadside spaces only on streets where parking is expressly permitted. Availability is not guaranteed; obey signs and road markings."},
+ {name:"Permitted roadside spaces – Vijayanagar",area:"Vijayanagar",address:"Vijayanagar, Bengaluru, Karnataka",vehicles:["Car","Bike"],fee:"Free",note:"Potential no-charge roadside spaces only where parking is expressly permitted by signs/markings. Check on-site restrictions."},
+ {name:"Permitted roadside spaces – Yelahanka",area:"Yelahanka",address:"Yelahanka, Bengaluru, Karnataka",vehicles:["Car","Bike"],fee:"Free",note:"Potential no-charge roadside spaces only where signs/markings permit parking. Do not assume an empty road edge is a legal parking space."}
 ];
 const areaNames = ["Allandur","Banashankari","Bannerghatta Road","Basavanagudi","Bellandur","Brigade Road","BTM Layout","Church Street","Commercial Street","Cunningham Road","Domlur","Electronic City","Frazer Town","HSR Layout","Hebbal","Indiranagar","Jayanagar","JP Nagar","Kadugodi","Koramangala","KR Market","Kalyan Nagar","Malleshwaram","Majestic","Marathahalli","MG Road","Murugeshpalya","Nagawara","Peenya","Rajajinagar","Ramamurthy Nagar","RT Nagar","Sarjapur Road","Shivaji Nagar","Ulsoor","Vijayanagar","Whitefield","Yelahanka","Yeshwanthpur"];
 const searchEl=document.getElementById("search"), areaEl=document.getElementById("area"), vehicleEl=document.getElementById("vehicle"), cardsEl=document.getElementById("cards");
@@ -73,15 +79,16 @@ uniqueAreas.forEach(a=>{const o=document.createElement("option");o.value=a;o.tex
 const areaButtons=document.getElementById("areaButtons");
 areaNames.forEach(a=>{const b=document.createElement("button");b.type="button";b.textContent=a;b.addEventListener("click",()=>{areaEl.value="";searchEl.value=a;render()});areaButtons.appendChild(b)});
 function render(){
- const q=searchEl.value.trim().toLowerCase(), area=areaEl.value, vehicle=vehicleEl.value;
- const filtered=places.filter(p=>(!q||[p.name,p.area,p.address].join(" ").toLowerCase().includes(q))&&(!area||p.area===area)&&(!vehicle||p.vehicles.includes(vehicle)));
+ const q=searchEl.value.trim().toLowerCase(), area=areaEl.value, vehicle=vehicleEl.value, fee=document.getElementById("cost").value;
+ const filtered=places.filter(p=>(!q||[p.name,p.area,p.address].join(" ").toLowerCase().includes(q))&&(!area||p.area===area)&&(!vehicle||p.vehicles.includes(vehicle))&&(!fee||p.fee===fee));
  cardsEl.replaceChildren();
  filtered.forEach(p=>{
   const card=document.createElement("article");card.className="card";
   const head=document.createElement("div");head.className="cardhead";
   const title=document.createElement("div");const h=document.createElement("h3");h.textContent=p.name;const ar=document.createElement("div");ar.className="area";ar.textContent=p.area;title.append(h,ar);
   head.append(title);card.append(head);
-  const tags=document.createElement("div");tags.className="tags";p.vehicles.forEach(v=>{const t=document.createElement("span");t.className="tag";t.textContent=v==="Bike"?"Bike / Two-wheeler":"Car";tags.append(t)});card.append(tags);
+  const tags=document.createElement("div");tags.className="tags";p.vehicles.forEach(v=>{const t=document.createElement("span");t.className="tag";t.textContent=v==="Bike"?"Bike / Two-wheeler":"Car";tags.append(t)});
+  const feeTag=document.createElement("span");feeTag.className="tag "+(p.fee==="Paid"?"paid":p.fee==="Free"?"free":"check");feeTag.textContent=p.fee==="Paid"?"Paid parking":p.fee==="Free"?"Potential free parking":"Fee to be confirmed";tags.append(feeTag);card.append(tags);
   const addr=document.createElement("p");addr.className="address";addr.textContent=p.address;card.append(addr);
   const note=document.createElement("p");note.className="note";note.textContent=p.note;card.append(note);
   const actions=document.createElement("div");actions.className="actions";
