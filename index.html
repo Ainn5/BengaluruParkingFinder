@@ -81,7 +81,7 @@ const areaButtons=document.getElementById("areaButtons");
 areaNames.forEach(a=>{const b=document.createElement("button");b.type="button";b.textContent=a;b.addEventListener("click",()=>{areaEl.value="";searchEl.value=a;render()});areaButtons.appendChild(b)});
 function render(){
  const q=searchEl.value.trim().toLowerCase(), area=areaEl.value, vehicle=vehicleEl.value, fee=document.getElementById("cost").value;
- const filtered=places.filter(p=>{const haystack=[p.name,p.area,p.address].join(" ").toLowerCase();const queryMatch=!q||q.split(/\\s+/).every(word=>haystack.includes(word));const areaMatch=!area||area.toLowerCase().split(/\\s+/).every(word=>(p.area+" "+p.address).toLowerCase().includes(word));return queryMatch&&areaMatch&&(!vehicle||p.vehicles.includes(vehicle))&&(!fee||p.fee===fee)});
+ const filtered=places.filter(p=>{const haystack=[p.name,p.area,p.address].join(" ").toLowerCase();const queryMatch=!q||q.split(/\s+/).every(word=>haystack.includes(word));const areaMatch=!area||area.toLowerCase().split(/\s+/).every(word=>(p.area+" "+p.address).toLowerCase().includes(word));return queryMatch&&areaMatch&&(!vehicle||p.vehicles.includes(vehicle))&&(!fee||p.fee===fee)});
  cardsEl.replaceChildren();
  filtered.forEach(p=>{
   const card=document.createElement("article");card.className="card";
